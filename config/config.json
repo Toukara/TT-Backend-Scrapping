@@ -1,0 +1,10 @@
+{
+  "development": {
+    "dialect": "mysql",
+    "host": "localhost",
+    "username": "root",
+    "password": "helloworld",
+    "port": 3308,
+    "database": "ttapi"
+  }
+}

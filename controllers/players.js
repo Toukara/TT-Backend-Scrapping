@@ -1,6 +1,8 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const pretty = require("pretty");
+
+const { Club, Player } = require("../models");
+const { createClub } = require("./clubs");
 
 const options = {
   credentials: "include",
@@ -20,21 +22,58 @@ const options = {
 };
 
 const getPlayers = async (req, res) => {
-  const club_id = req.params.id;
+  const club = await Club.findOne({ where: { id: req.params.id } });
+  if (!club) {
+    await createClub(req.params.id);
+    res.send("Club created");
+  } else {
+    const players = await Player.findAll({ where: { clubId: req.params.id } });
+    res.send(players);
+  }
+};
+
+const createPlayers = async (clubId) => {
+  const players = await fetchPlayers(clubId);
+
+  for (const player of players) {
+    const playerdb = {
+      firstName: player.name.split(" ")[0],
+      lastName: player.name.split(" ")[1],
+      licence: player.licence,
+      points: player.points,
+      clubId: clubId,
+    };
+
+    const [user, created] = await Player.findOrCreate({
+      where: { licence: playerdb.licence },
+      defaults: playerdb,
+    });
+    if (created) {
+      console.log("Player created", user.firstName);
+    } else {
+      if (user.points.officiels !== playerdb.points.officiels) {
+        console.log("Player points changed", user.get({ plain: true }));
+        user.points = playerdb.points;
+        user.save();
+      }
+    }
+  }
+};
+
+const fetchPlayers = async (clubId) => {
+  const response = await axios.get(`https://www.pingpocket.fr/app/fftt/clubs/${clubId}/licencies?SORT=OFFICIAL_RANK`, options);
+
   const players = [];
 
-  const response = await axios.get(`https://www.pingpocket.fr/app/fftt/clubs/${club_id}/licencies?SORT=OFFICIAL_RANK`, options);
-
   const $ = cheerio.load(response.data);
-
   $("li.arrow a p").each((i, el) => {
     if (i % 2 === 0) {
       players.push({
         name: $(el).html(),
       });
+      // console.log($(el).html());
     } else return;
   });
-
   $("li.arrow a").each((i, el) => {
     players[i].licence = $(el).attr("href").split("/")[4].split("?")[0];
   });
@@ -44,8 +83,7 @@ const getPlayers = async (req, res) => {
     const response = await getPlayerPoints(players[i].licence);
     players[i].points = response;
   }
-
-  res.send(players);
+  return players;
 };
 
 const getPlayerPoints = async (playerId, clubId) => {
@@ -56,12 +94,9 @@ const getPlayerPoints = async (playerId, clubId) => {
     allProgression: 0,
     monthlyProgression: 0,
   };
-
   const response = await axios.get(`https://www.pingpocket.fr/app/fftt/licencies/${playerId}?CLUB_ID=${clubId}`, options);
-
   const data = cheerio.load(response.data);
   const $ = data;
-
   $("li.item-container small").each((i, el) => {
     if (i === 0) {
       playerStats.classement = $(el).html();
@@ -75,8 +110,10 @@ const getPlayerPoints = async (playerId, clubId) => {
       playerStats.allProgression = $(el).html();
     } else return;
   });
-
   return playerStats;
 };
 
-module.exports.getPlayers = getPlayers;
+module.exports = {
+  getPlayers,
+  createPlayers,
+};
