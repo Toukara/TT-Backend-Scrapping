@@ -41,6 +41,6 @@ app.use(function (err, req, res, next) {
 });
 
 // connect database
-require("./database/index");
+require("./models/index");
 
 module.exports = app;
