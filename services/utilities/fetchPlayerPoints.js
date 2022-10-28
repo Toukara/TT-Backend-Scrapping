@@ -5,16 +5,15 @@ const options = require("../../config/options.json");
 
 const fetchPlayerPoints = async (playerId, clubId) => {
   let playerStats = {
-    classement: 0,
-    start: 0,
-    officiels: 0,
+    classement: "5",
+    start: "500",
+    officiels: "500",
     allProgression: 0,
     monthlyProgression: 0,
   };
 
   const response = await axios.get(`https://www.pingpocket.fr/app/fftt/licencies/${playerId}?CLUB_ID=${clubId}`, options);
-  const data = cheerio.load(response.data);
-  const $ = data;
+  const $ = cheerio.load(response.data);
 
   // Get the player's points and progression
   $("li.item-container small").each((i, el) => {

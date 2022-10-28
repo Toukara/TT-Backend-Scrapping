@@ -4,6 +4,7 @@ const { fetchPlayers } = require("./fetchPlayers");
 
 const createPlayers = async (clubId) => {
   const players = await fetchPlayers(clubId);
+  let playersCreated = 0;
 
   for (const player of players) {
     const playerdb = {
@@ -19,7 +20,7 @@ const createPlayers = async (clubId) => {
       defaults: playerdb,
     });
     if (created) {
-      console.log("Player created", user.firstName, user.lastName);
+      playersCreated++;
     } else {
       if (user.points.officiels !== playerdb.points.officiels) {
         console.log("Player points changed", user.get({ plain: true }));
@@ -28,6 +29,8 @@ const createPlayers = async (clubId) => {
       }
     }
   }
+
+  console.log(playersCreated, "players created");
 };
 
 module.exports = { createPlayers };

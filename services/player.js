@@ -1,25 +1,16 @@
-const { Club, Player } = require("../database/index");
+const fs = require("fs");
+const path = require("path");
 
-const { createClub } = require("./utilities/createClub");
+const playersFunctions = {};
 
-const getPlayers = async (req) => {
-  const club = await Club.findOne({ where: { id: req.params.id } });
-  if (!club) {
-    await createClub(req.params.id);
-    return {
-      message: "Club created",
-      status: 201,
-    };
-  } else {
-    const players = await Player.findAll({ where: { clubId: req.params.id } });
-    return {
-      message: "Players found",
-      status: 200,
-      players: players,
-    };
-  }
-};
+fs.readdirSync(path.join(__dirname, "utilities"))
+  .filter((file) => {
+    return file.indexOf(".") !== 0 && file.slice(-3) === ".js";
+  })
+  .forEach((file) => {
+    // get each module and add it to the fn object
+    const module = require(path.join(__dirname, "utilities", file));
+    playersFunctions[Object.keys(module)[0]] = Object.values(module)[0];
+  });
 
-module.exports = {
-  getPlayers,
-};
+module.exports = playersFunctions;

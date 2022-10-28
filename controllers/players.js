@@ -6,6 +6,13 @@ const allPlayers = async (req, res) => {
   res.status(results.status).json(results);
 };
 
+const playerById = async (req, res) => {
+  const results = await getPlayersById(req);
+
+  res.status(results.status).json(results);
+};
+
 module.exports = {
   allPlayers,
+  playerById,
 };

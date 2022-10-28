@@ -6,8 +6,6 @@ const { createPlayers } = require("./createPlayers");
 const createClub = async (clubId) => {
   const clubDatas = await fetchClubDatas(clubId);
 
-  console.log(clubDatas);
-
   const [club, created] = await Club.findOrCreate({
     where: { id: clubId },
     defaults: clubDatas,

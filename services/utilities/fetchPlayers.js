@@ -31,7 +31,6 @@ const fetchPlayers = async (clubId) => {
     players[i].points = response;
   }
 
-  console.log(players);
   return players;
 };
 
