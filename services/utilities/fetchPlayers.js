@@ -2,7 +2,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 
 const { fetchPlayerPoints } = require("./fetchPlayerPoints");
-const options = require("../../config/options.json");
+const options = require("../../config/config").fetchOptions;
 
 const fetchPlayers = async (clubId) => {
   const response = await axios.get(`https://www.pingpocket.fr/app/fftt/clubs/${clubId}/licencies?SORT=OFFICIAL_RANK`, options);

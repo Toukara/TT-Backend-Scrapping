@@ -1,7 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-const options = require("../../config/options.json");
+const options = require("../../config/config").fetchOptions;
 
 const fetchPlayerPoints = async (playerId, clubId) => {
   let playerStats = {

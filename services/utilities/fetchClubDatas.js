@@ -1,7 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-const options = require("../../config/options.json");
+const options = require("../../config/config").fetchOptions;
 
 const fetchClubDatas = async (clubId) => {
   const response = await axios.get(`https://www.pingpocket.fr/app/fftt/clubs/${clubId}/coordonnees`, options);
