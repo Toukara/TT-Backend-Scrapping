@@ -1,10 +1,13 @@
-const axios = require("axios");
 const cheerio = require("cheerio");
+const axios = require("../lib/axios");
 
-const options = require("../../config/config").fetchOptions;
+const { models } = require("../database");
+const { Club } = models;
 
-const fetchClubDatas = async (clubId) => {
-  const response = await axios.get(`https://www.pingpocket.fr/app/fftt/clubs/${clubId}/coordonnees`, options);
+const { createPlayer } = require("./createPlayer");
+
+async function fetchClubDatas(clubId) {
+  const response = await axios.get(`/clubs/${clubId}/coordonnees`);
   const $ = cheerio.load(response.data);
 
   contactsData = [];
@@ -30,6 +33,15 @@ const fetchClubDatas = async (clubId) => {
   });
 
   return club;
-};
+}
 
-module.exports = { fetchClubDatas };
+async function createClub(clubId) {
+  const clubDatas = await fetchClubDatas(clubId);
+
+  const club = await Club.create(clubDatas);
+  await createPlayer(clubId);
+
+  return { status: 201, data: club, message: "Club created" };
+}
+
+module.exports = createClub;

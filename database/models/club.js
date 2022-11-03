@@ -1,18 +1,38 @@
-const { Model, Sequelize } = require("sequelize");
+const { Sequelize, Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Club extends Model {
     static associate(models) {
-      Club.hasMany(models.Team, { foreignKey: "clubId", as: "teams" });
+      Club.hasMany(models.Team, {
+        foreignKey: "teamId",
+        as: "team",
+      });
+      Club.hasMany(models.Player, {
+        foreignKey: "clubId",
+        as: "club",
+      });
     }
   }
 
   Club.init(
     {
-      name: DataTypes.STRING,
-      id: { type: DataTypes.INTEGER, primaryKey: true },
-      contacts: DataTypes.JSON,
-      address: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      id: {
+        type: DataTypes.STRING,
+        primaryKey: true,
+        allowNull: false,
+      },
+      contacts: {
+        type: DataTypes.JSON,
+        allowNull: false,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,

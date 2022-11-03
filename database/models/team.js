@@ -1,14 +1,21 @@
-const { Model, Sequelize } = require("sequelize");
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Team extends Model {
     static associate(models) {
-      Team.belongsTo(models.Club, { foreignKey: "clubId", as: "club" });
+      Team.belongsTo(models.Club, {
+        foreignKey: "clubId",
+        as: "club",
+      });
     }
   }
+
   Team.init(
     {
-      division: DataTypes.STRING,
+      division: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,
