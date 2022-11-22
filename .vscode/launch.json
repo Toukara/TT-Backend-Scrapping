@@ -10,13 +10,13 @@
 			"name": "Debug opened file",
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${file}"
-		}
+		},
         {
 			"type": "node",
 			"request": "launch",
 			"name": "Debug Express app",
 			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/bin/www"
+			"program": "./bin/www"
 		}
 	]
 }

@@ -6,7 +6,6 @@ class Router {
 
   constructor() {
     this.router = express.Router();
-    // this.routes = {};
   }
 
   resources(path, controller) {

@@ -12,15 +12,15 @@ module.exports = (sequelize, DataTypes) => {
 
   Player.init(
     {
-      firstName: {
+      firstname: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      lastName: {
+      lastname: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      licence: {
+      license: {
         type: DataTypes.STRING,
         allowNull: false,
       },

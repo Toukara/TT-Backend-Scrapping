@@ -1,13 +1,12 @@
-#! /usr/bin/env python
+const { saveClub, savePlayers } = require("../utils/scraper.js");
 
-async function main() {
-	//
-}
+const clubId = "07620040";
 
-try {
-	main();
-} catch (error) {
-	console.error(error);
-}
-
-module.exports = { populate: main };
+saveClub(clubId)
+  .then((club) => {
+    // console.log(club.name);
+    savePlayers(club.id);
+  })
+  .catch((err) => {
+    console.error(err);
+  });

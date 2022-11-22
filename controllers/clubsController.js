@@ -1,5 +1,7 @@
 const BaseController = require("./BaseController");
-const { CreateClub, FindClub } = require("../scripts");
+const { models } = require("../database");
+const { Club, Player } = models;
+const scrapper = require("../utils/scraper");
 
 class ClubsController extends BaseController {
   static Model = "Club";
@@ -9,16 +11,55 @@ class ClubsController extends BaseController {
   }
 
   async create(id) {
-    console.log("id", id);
-    const club = await CreateClub(this.req.params.id);
-    this.res.status(club.status).json(club);
+    const club = await scrapper.saveClub(id);
+    const players = await scrapper.savePlayers(id);
+
+    this.res.status(201).send({ club, players });
+  }
+
+  async index() {
+    const clubs = await Club.findAll();
+    this.res.status(200).json(clubs);
   }
 
   async show(id) {
-    console.log("id", id);
-    const clubFound = await FindClub(id);
+    console.log(this.req.query);
+    const club = await Club.findOne({ where: { id } });
+    if (!club) {
+      return this.res.status(404).json({ error: "Club not found" });
+    } else {
+      return this.res.status(200).json(club);
+    }
+  }
 
-    this.res.status(clubFound.status).json({ data: clubFound.data, message: clubFound.message });
+  async update(id) {
+    const club = await Club.findOne({ where: { id } });
+    if (!club) {
+      return this.res.status(404).json({ error: "Club not found" });
+    } else {
+      const updatedClub = await scrapper.saveClub(id);
+      return this.res.status(200).json(updatedClub);
+    }
+  }
+
+  async destroy(id) {
+    const club = await Club.findOne({ where: { id } });
+    if (!club) {
+      return this.res.status(404).json({ error: "Club not found" });
+    } else {
+      await Club.destroy({ where: { id } });
+      await Player.destroy({ where: { clubId: id } });
+      return this.res.status(204).send();
+    }
+  }
+
+  async all(id) {
+    const players = await Player.findAll({ where: { clubId: id } });
+    if (!players) {
+      return this.res.status(404).json({ error: "Club not found" });
+    } else {
+      return this.res.status(200).json(players);
+    }
   }
 }
 

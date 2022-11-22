@@ -1,5 +1,6 @@
 const BaseController = require("./BaseController");
-const { FindPlayer, CreatePlayer } = require("../scripts");
+const { models } = require("../database");
+const { Player } = models;
 
 class PlayersController extends BaseController {
   static Model = "Player";
@@ -9,25 +10,16 @@ class PlayersController extends BaseController {
   }
 
   async index() {
-    const players = await this.model.findAll();
-    this.json(players);
+    const players = await Player.findAll();
+    this.res.status(200).json(players);
   }
 
-  async show(id) {
-    const playerFound = await FindPlayer(id);
-
-    this.res.status(playerFound.status).json(playerFound);
-  }
-
-  async update(id) {}
-
-  async destroy(id) {
-    const player = await this.model.findOne({ where: { licence: id } });
-    if (player) {
-      await player.destroy();
-      this.status(204, null);
+  async show(pid) {
+    const player = await Player.findOne({ where: { license: pid } });
+    if (!player) {
+      return this.res.status(404).json({ error: "Player not found" });
     } else {
-      this.status(404, { error: "Player not found" });
+      return this.res.status(200).json(player);
     }
   }
 }

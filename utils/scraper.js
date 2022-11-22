@@ -1,42 +1,47 @@
 const cheerio = require("cheerio");
 const axios = require("../lib/axios");
 
-// const { models } = require("../database");
-// const { Club, Player } = models;
+const { models } = require("../database");
+const { Club, Player } = models;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Scrapes the club from the website from a given id.
  *
  * @param {string} cid - The club id.
  */
 async function getClub(cid) {
-	const { data: page } = await axios.get(`/clubs/${cid}/coordonnees`);
-	const $ = cheerio.load(page);
+  const { data: page } = await axios.get(`/clubs/${cid}/coordonnees`);
+  const $ = cheerio.load(page);
 
-	const club = {
-		id: cid,
-		name: $("h1").html(),
-		address: undefined,
-		contacts: {
-			phone: undefined,
-			email: undefined,
-			name: $("li.item-container div.labels p").html(),
-		},
-	};
+  const club = {
+    id: cid,
+    name: $("h1").html(),
+    address: undefined,
+    contacts: {
+      phone: undefined,
+      email: undefined,
+      name: $("li.item-container div.labels p").html(),
+    },
+  };
 
-	$("li.forward div.labels p").each((i, el) => {
-		if (i % 2 === 0 && i <= 2) {
-			// contacts.push($(el).html());
-		}
-	});
+  $("li.forward div.labels p").each((i, el) => {
+    let text = $(el).text();
+    if (text.includes("@")) {
+      club.contacts.email = text;
+    } else if (text.includes("0")) {
+      club.contacts.phone = text;
+    }
+  });
 
-	$("ul.rounded li:nth-child(1)").each((i, el) => {
-		if (i === 1) {
-			const addrReg = /<(\w+)>(.*?)<\/\1>/;
-			club.address = $(el).text().replace(addrReg, " ");
-		}
-	});
+  $("ul.rounded li:nth-child(1) p").each((i, el) => {
+    if (i === 2) {
+      const addrReg = /(?:\s+)?\<br\>(?:\s+)?/;
+      club.address = $(el).html().split(addrReg).join(" ");
+    }
+  });
 
-	return club;
+  return club;
 }
 
 /** Scrapes the players from the website from a given club id.
@@ -44,13 +49,23 @@ async function getClub(cid) {
  * @param {*} cid
  */
 async function getPlayers(cid) {
-	const { data: page } = await axios.get(`/clubs/${cid}/licencies?SORT=OFFICIAL_RANK`);
-	const $ = cheerio.load(page);
+  try {
+    const { data: page } = await axios.get(`/clubs/${cid}/licencies?SORT=OFFICIAL_RANK`);
+    const $ = cheerio.load(page);
 
-	let players = $("li.arrow a").map((i, el) => getPlayer($(el), cid));
-	players = await Promise.all(players.get());
+    const players = [];
 
-	return players;
+    // timeout to avoid being blocked by the website
+    for (let i = 0; i < $("a.item-container").length; i++) {
+      const player = await getPlayer($("a.item-container").eq(i), cid);
+      players.push(player);
+      await sleep(80);
+    }
+
+    return players;
+  } catch (err) {
+    console.error(err.message);
+  }
 }
 
 /** Scrapes the players from a given club page.
@@ -60,37 +75,42 @@ async function getPlayers(cid) {
  * @returns {Promise<Object>} The player.
  */
 async function getPlayer(el, cid) {
-	let label = el.find(".labels");
-	let [first, last] = label.text().trim().split(" ");
+  try {
+    let label = el.find(".labels");
+    let [first, last] = label.text().trim().split(" ");
 
-	let licenseReg = /\/licencies\/(\d+)\?/;
-	let license = el.attr("href").match(licenseReg)[1];
+    let licenseReg = /\/licencies\/(\d+)\?/;
+    let license = el.attr("href").match(licenseReg)[1];
 
-	const { data: page } = await axios.get(`/licencies/${license}?CLUB_ID=${cid}`);
-	const $ = cheerio.load(page);
+    const { data: page } = await axios.get(`/licencies/${license}?CLUB_ID=${cid}`);
+    const $ = cheerio.load(page);
 
-	const player = {
-		license,
-		clubId: cid,
-		firstname: first,
-		lastname: last,
-		points: {
-			classement: "5",
-			officiels: "500",
-			start: "500",
-			monthlyProgression: 0,
-			allProgression: 0,
-		},
-	};
+    const player = {
+      license,
+      clubId: cid,
+      firstname: first,
+      lastname: last,
+      points: {
+        classement: "5",
+        officiels: "500",
+        start: "500",
+        monthlyProgression: 0,
+        allProgression: 0,
+      },
+    };
 
-	$("li.item-container small").each((i, el) => {
-		// since we sorted the player object to that the UI
-		// we can use the index of each element/key instead of a if/else
-		let keys = Object.keys(player.points);
-		player.points[keys[i]] = $(el).text();
-	});
+    $("li.item-container small").each((i, el) => {
+      // since we sorted the player object to that the UI
+      // we can use the index of each element/key instead of a if/else
+      let keys = Object.keys(player.points);
+      player.points[keys[i]] = $(el).text();
+    });
 
-	return player;
+    // console.log(player.firstname, player.lastname, player.license);
+    return player;
+  } catch (err) {
+    console.error(err.config.url);
+  }
 }
 
 /** Scrapes the club from the website from a given id, and saves it to the database.
@@ -102,11 +122,14 @@ async function getPlayer(el, cid) {
  * @returns {Promise<Club>} The club.
  */
 async function saveClub(cid) {
-	const exists = await Club.findOne({ id: cid });
-	if (exists) return exists; // TODO: handle updating
+  const exists = await Club.findOne({ where: { id: cid } });
+  if (exists) {
+    await exists.update(await getClub(cid));
+    return exists;
+  }
 
-	const club = await getClub(cid);
-	return await Club.create(club);
+  const club = await getClub(cid);
+  return await Club.create(club);
 }
 
 /** Scrapes the players from the website from a given club id, and saves them to the database.
@@ -117,10 +140,18 @@ async function saveClub(cid) {
  * @param {Club} club - The club instance.
  */
 async function savePlayers(club) {
-	if (!club) throw new Error("No club provided");
+  if (!club) throw new Error("No club provided");
 
-	const players = await getPlayers(cid);
-	return await Player.insertMany(players);
+  const players = await getPlayers(club);
+
+  for (let player of players) {
+    const exists = await Player.findOne({ where: { license: player.license } });
+    if (exists) {
+      await exists.update(player);
+      continue;
+    }
+    await Player.create(player);
+  }
 }
 
 module.exports = { getClub, saveClub, getPlayers, savePlayers };

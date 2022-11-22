@@ -35,6 +35,10 @@ class BaseController {
     throw new Error("Method destroy is not implemented");
   }
 
+  all() {
+    throw new Error("Method all is not implemented");
+  }
+
   /** Send a JSON response.
    *
    * @param {Object} data
