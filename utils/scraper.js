@@ -85,9 +85,14 @@ async function getPlayer(el, cid) {
     const { data: page } = await axios.get(`/licencies/${license}?CLUB_ID=${cid}`);
     const $ = cheerio.load(page);
 
+    let info = $(".info.border p");
+    let clubname = info.text().split("\n")[2].split("-")[0].trim();
+
+
     const player = {
       license,
       clubId: cid,
+      clubName: clubname,
       firstname: first,
       lastname: last,
       points: {

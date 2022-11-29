@@ -27,9 +27,12 @@ module.exports = (sequelize, DataTypes) => {
       points: {
         type: DataTypes.JSON,
         allowNull: false,
-        default: {}
       },
       clubId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      clubName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
