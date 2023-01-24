@@ -21,6 +21,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
+app.get("/", (req, res) => {
+  // render a view called index.pug who document the API
+  res.render("index", { title: "Express" });
+});
+
 app.use("/api", indexRouter);
 
 // catch 404 and forward to error handler

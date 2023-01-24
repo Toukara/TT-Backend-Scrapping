@@ -5,15 +5,10 @@ const FilesController = require("./controllers/filesController.js");
 const Router = require("./utils/router.js");
 const router = new Router();
 
-// /api/players/
-// /api/players/:pid
 router.resources("/players", PlayersController);
 
-// /api/clubs
-// /api/clubs/:id
 let clubs = router.resources("/clubs", ClubsController);
 
-// /api/clubs/:id/players
 clubs.route("/clubs/:id/players", "all", "GET", ClubsController);
 
 router.resources("/files", FilesController);

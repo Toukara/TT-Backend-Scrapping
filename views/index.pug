@@ -1,5 +1,67 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  //- Document API
+  h2 Document API
+  p This is a documentation for the API of the application. The API is accessible at the following address:
+  blockquote
+  p For the following examples, we will use the following base URL:
+  a(href='http://localhost:1000/api/') http://localhost:1000/api/
+  blockquote
+
+  p =========================================================
+
+  //- Get all documents
+  h3 Players 
+  p GET : all players
+  blockquote
+  a(href='http://localhost:1000/api/players') /api/players
+  blockquote
+  br
+  p GET : player by their license number
+  p /api/players/:licenseNumber
+  blockquote
+  a(href='http://localhost:1000/api/players/3332019') /api/players/3332019
+  blockquote
+
+  p =========================================================
+
+  h3 Clubs
+  p GET : all clubs
+  blockquote
+  a(href='http://localhost:1000/api/clubs') /api/clubs
+  blockquote
+  br
+  p GET : club by their id
+  p /api/clubs/:id
+  blockquote
+  a(href='http://localhost:1000/api/clubs/07620005') /api/clubs/07620005
+  blockquote
+  br
+  p GET : Get all players of a club
+  p /api/clubs/:id/players
+  blockquote
+  a(href='http://localhost:1000/api/clubs/07620005/players') /api/clubs/07620005/players
+  blockquote
+  br
+  p POST : Create club by id (Players will be created automatically)
+  p /api/clubs/:id
+  blockquote
+  a(href='http://localhost:1000/api/clubs/07620005') /api/clubs/07620005
+  blockquote
+  br
+  p PUT : Update club by id (Players will be updated automatically)
+  p /api/clubs/:id
+  blockquote
+  a(href='http://localhost:1000/api/clubs/07620005') /api/clubs/07620005
+  blockquote
+  br
+  p DELETE : Delete club by id (Players will be deleted automatically)
+  p /api/clubs/:id
+  blockquote
+  a(href='http://localhost:1000/api/clubs/07620005') /api/clubs/07620005
+  blockquote
+
+
+
+
