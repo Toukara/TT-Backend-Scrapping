@@ -1,6 +1,6 @@
 # Table Tennis Hub Backend (TTBackend)
 
-This is a simple backend for the [Lorem Ipsum](https://github.com/Toukara/TTScraping-front) project. (This project is still in development)
+This is a simple backend for the [Table Tennis Hub](https://github.com/Toukara/Table-Tennis-Hub) project. (This project is still in development)
 
 ## Getting Started
 
