@@ -47,7 +47,7 @@ DB_PASSWORD = # Database Password
 yarn start
 ```
 
-2. Go to [http://localhost:3000](http://localhost:3000) to see the API documentation
+2. Go to [http://localhost:1000](http://localhost:1000) to see the API documentation
 
 ## Built With
 
