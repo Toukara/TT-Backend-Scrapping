@@ -88,6 +88,24 @@ async function getPlayer(el, cid) {
     let info = $(".info.border p");
     let clubname = info.text().split("\n")[2].split("-")[0].trim();
 
+    let points1 = {
+      classement: "5",
+      officiels: "500",
+      firstPhase: "500",
+      secondPhase: "500",
+      monthlyProgression: 0,
+      allProgression: 0,
+    };
+
+    let points2 = {
+      classement: "5",
+      officiels: "500",
+      firstPhase: "500",
+      monthlyProgression: 0,
+      allProgression: 0,
+    };
+
+    $("li.item-container small").length > 5 ? (points = points1) : (points = points2);
 
     const player = {
       license,
@@ -95,13 +113,7 @@ async function getPlayer(el, cid) {
       clubName: clubname,
       firstname: first,
       lastname: last,
-      points: {
-        classement: "5",
-        officiels: "500",
-        start: "500",
-        monthlyProgression: 0,
-        allProgression: 0,
-      },
+      points: points,
     };
 
     $("li.item-container small").each((i, el) => {
@@ -111,6 +123,7 @@ async function getPlayer(el, cid) {
       player.points[keys[i]] = $(el).text();
     });
 
+    console.log(player);
     // console.log(player.firstname, player.lastname, player.license);
     return player;
   } catch (err) {
