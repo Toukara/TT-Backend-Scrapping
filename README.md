@@ -1,4 +1,4 @@
-# Lorem Ipsum Backend
+# Table Tennis Hub Backend (TTBackend)
 
 This is a simple backend for the [Lorem Ipsum](https://github.com/Toukara/TTScraping-front) project. (This project is still in development)
 
@@ -17,7 +17,7 @@ Be sure to have the following installed on your system:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/Toukara/TT-Scrapping
+git clone https://github.com/Toukara/TTBackend
 ```
 
 2. Install dependencies
