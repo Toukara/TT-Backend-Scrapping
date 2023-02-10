@@ -62,3 +62,9 @@ typings/
 
 # docker-compose
 docker-compose.yml
+
+# tests folder
+tests
+
+scripts/populate.js
+
